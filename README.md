@@ -22,6 +22,26 @@
 - ☕ Powered by coffee and a stubborn habit of fixing bugs at the **root cause**, not the symptom
 - 🟢 **Open to work** — freelance or full-time
 
+## 🧠 A bug the internet couldn't fix
+
+A client's CMS saved content perfectly — but the public site **never showed it**. Refresh? Nothing.
+The forums are full of this exact problem: *"restart the server"*, *"clear the cache"*, *"check your DB"*…
+threads everywhere, no accepted answer. The database was fine. The API was fine.
+
+The real culprit: **Next.js App Router silently caches every `fetch()` in server components** —
+so the page kept serving a snapshot from build time, and every admin edit went into a black hole.
+
+```ts
+// ❌ what everyone ships — Next.js quietly caches this at build time
+const res = await fetch(`${API}/equipments`);
+
+// ✅ the one line nobody tells you about
+const res = await fetch(`${API}/equipments`, { cache: "no-store" });
+```
+
+Admin saves → public page updates **instantly**. No restarts, no redeploys, no exorcism.
+That's what *root cause* means. 🔧
+
 ## 🧰 Toolbox
 
 <div align="center">
