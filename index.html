@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ahmed Syam — come into my room</title>
+<meta name="description" content="Ahmed Syam — Full-Stack Developer. A cozy interactive 3D dev room: click around to explore my work." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --night: #141022;
+    --cream: #f6ead8;
+    --amber: #ffb35c;
+    --terra: #e07856;
+    --sage: #9fc490;
+    --inkc: #2c2436;
+    --card: #1d172d;
+    --cardline: #352a4e;
+    --muted: #a99bc4;
+    --mono: "IBM Plex Mono", monospace;
+    --sans: "Sora", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body { background: var(--night); font-family: var(--sans); color: var(--cream); }
+  canvas { display: block; }
+  #scene { position: fixed; inset: 0; }
+
+  /* ── top chrome ── */
+  .chrome {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 28px; pointer-events: none;
+  }
+  .chrome .name { pointer-events: auto; }
+  .chrome .name b { font-size: 17px; font-weight: 800; letter-spacing: .3px; }
+  .chrome .name span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 2px; text-transform: uppercase; }
+  .chrome a.gh {
+    pointer-events: auto; text-decoration: none; color: var(--cream);
+    font-family: var(--mono); font-size: 12px;
+    border: 1px solid rgba(246,234,216,.25); border-radius: 999px; padding: 9px 18px;
+    background: rgba(20,16,34,.5); backdrop-filter: blur(8px); transition: all .25s;
+  }
+  .chrome a.gh:hover { border-color: var(--amber); color: var(--amber); transform: translateY(-2px); }
+
+  /* ── hint ── */
+  #hint {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+    z-index: 10; font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--muted); transition: opacity .6s; text-align: center; pointer-events: none;
+  }
+  #hint b { color: var(--amber); }
+
+  /* ── tooltip ── */
+  #tip {
+    position: fixed; z-index: 12; pointer-events: none; display: none;
+    font-family: var(--mono); font-size: 12.5px; color: var(--night);
+    background: var(--cream); border-radius: 8px; padding: 7px 13px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.45); font-weight: 500;
+  }
+  #tip::after { content: ""; position: absolute; left: 14px; top: 100%;
+    border: 6px solid transparent; border-top-color: var(--cream); }
+
+  /* ── back button ── */
+  #back {
+    position: fixed; top: 76px; left: 28px; z-index: 11;
+    font-family: var(--mono); font-size: 12.5px; color: var(--cream);
+    border: 1px solid rgba(246,234,216,.3); background: rgba(20,16,34,.6);
+    border-radius: 999px; padding: 10px 20px; cursor: pointer;
+    opacity: 0; pointer-events: none; transition: all .3s; backdrop-filter: blur(8px);
+  }
+  #back.show { opacity: 1; pointer-events: auto; }
+  #back:hover { border-color: var(--amber); color: var(--amber); }
+
+  /* ── panels ── */
+  .panel {
+    position: fixed; top: 50%; right: 4vw; transform: translateY(-50%) translateX(60px);
+    width: min(440px, 88vw); max-height: 82vh; overflow-y: auto; z-index: 11;
+    background: linear-gradient(165deg, rgba(34,26,52,.96), rgba(22,17,38,.96));
+    border: 1px solid var(--cardline); border-radius: 20px; padding: 30px 30px 26px;
+    opacity: 0; pointer-events: none; transition: opacity .45s ease, transform .45s cubic-bezier(.2,.7,.2,1);
+    box-shadow: 0 30px 80px rgba(0,0,0,.6); backdrop-filter: blur(14px);
+    scrollbar-width: thin; scrollbar-color: var(--cardline) transparent;
+  }
+  .panel.open { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
+  .panel .file { font-family: var(--mono); font-size: 11px; color: var(--amber); letter-spacing: 1px; margin-bottom: 10px; }
+  .panel h2 { font-size: 26px; font-weight: 800; letter-spacing: -.4px; margin-bottom: 14px; }
+  .panel h2 em { color: var(--amber); font-style: normal; }
+  .panel p { font-size: 13.5px; line-height: 1.95; color: var(--muted); margin-bottom: 12px; }
+  .panel p b { color: var(--cream); font-weight: 600; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+  .stat { background: rgba(255,179,92,.07); border: 1px solid rgba(255,179,92,.18);
+    border-radius: 12px; padding: 13px 8px; text-align: center; }
+  .stat .n { font-family: var(--mono); font-size: 21px; font-weight: 700; color: var(--amber); }
+  .stat .l { font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+  /* stack = phone app grid */
+  .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 6px; }
+  .app { text-align: center; cursor: default; }
+  .app .ic {
+    width: 100%; aspect-ratio: 1; border-radius: 16px; display: flex;
+    align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 700; font-size: 15px;
+    background: var(--c, #444); color: #fff; transition: transform .25s;
+    box-shadow: 0 6px 18px rgba(0,0,0,.35);
+  }
+  .app:hover .ic { transform: translateY(-5px) scale(1.06) rotate(-3deg); }
+  .app .nm { font-size: 9.5px; color: var(--muted); margin-top: 7px; letter-spacing: .4px; }
+  .apps-group { font-family: var(--mono); font-size: 10.5px; color: var(--amber);
+    letter-spacing: 2px; text-transform: uppercase; margin: 18px 0 10px; }
+
+  /* projects */
+  .repo {
+    display: block; text-decoration: none; color: inherit;
+    border: 1px solid var(--cardline); border-radius: 14px; padding: 15px 17px;
+    margin-bottom: 11px; transition: all .25s; background: rgba(255,255,255,.02);
+  }
+  .repo:hover { border-color: rgba(255,179,92,.5); transform: translateX(5px); background: rgba(255,179,92,.05); }
+  .repo .rn { font-family: var(--mono); font-size: 14px; color: var(--amber); font-weight: 600; }
+  .repo .rd { font-size: 12px; color: var(--muted); line-height: 1.7; margin-top: 5px; }
+  .repo .rf { display: flex; gap: 15px; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 9px; opacity: .85; }
+  .repo .rf i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+
+  /* contact */
+  .c-row { display: flex; flex-direction: column; gap: 11px; margin-top: 18px; }
+  .c-btn {
+    text-decoration: none; text-align: center; font-family: var(--mono); font-size: 13px;
+    padding: 14px 18px; border-radius: 12px; transition: all .25s;
+  }
+  .c-btn.main { background: linear-gradient(135deg, var(--amber), var(--terra)); color: #241505; font-weight: 600;
+    box-shadow: 0 8px 28px rgba(255,179,92,.3); }
+  .c-btn.main:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(255,179,92,.45); }
+  .c-btn.alt { border: 1px solid var(--cardline); color: var(--cream); }
+  .c-btn.alt:hover { border-color: var(--amber); color: var(--amber); }
+  .avail { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11.5px;
+    color: var(--sage); border: 1px solid rgba(159,196,144,.35); background: rgba(159,196,144,.08);
+    padding: 6px 14px; border-radius: 999px; margin-bottom: 14px; }
+  .avail i { width: 8px; height: 8px; border-radius: 50%; background: var(--sage);
+    box-shadow: 0 0 10px var(--sage); animation: pp 2s infinite; }
+  @keyframes pp { 50% { opacity: .3; } }
+
+  /* ── loader ── */
+  #loader { position: fixed; inset: 0; z-index: 50; background: var(--night);
+    display: flex; flex-direction: column; gap: 20px; align-items: center; justify-content: center;
+    transition: opacity .8s; }
+  #loader.done { opacity: 0; pointer-events: none; }
+  #loader .lamp { font-size: 40px; animation: flick 1.2s infinite; }
+  @keyframes flick { 0%,100% { opacity: 1; } 45% { opacity: .25; } 55% { opacity: .9; } 70% { opacity: .4; } }
+  #loader p { font-family: var(--mono); font-size: 11.5px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+
+  @media (max-width: 700px) {
+    .panel { right: 50%; transform: translate(50%, -50%) translateY(40px); top: auto; bottom: 4vh; transform-origin: bottom;
+      max-height: 64vh; }
+    .panel.open { transform: translate(50%, 0) translateY(0); top: auto; bottom: 4vh; }
+    #hint { font-size: 10px; width: 90vw; }
+  }
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+
+<div id="scene"></div>
+
+<div class="chrome">
+  <div class="name"><b>Ahmed Syam</b><span>full-stack developer</span></div>
+  <a class="gh" href="https://github.com/ahmedsyamdev" target="_blank" rel="noopener">github.com/ahmedsyamdev ↗</a>
+</div>
+
+<div id="hint">welcome to my room — <b>click anything</b> · the lamp works too</div>
+<div id="tip"></div>
+<button id="back">← back to the room</button>
+
+<!-- ════ PANELS ════ -->
+<div class="panel" id="pn-about">
+  <div class="file">~/about.md</div>
+  <h2>One pair of hands,<br/><em>the whole stack.</em></h2>
+  <p>I'm Ahmed — a full-stack developer from Egypt. I take products from
+  <b>database schema → REST APIs → admin dashboards → polished frontends</b>, including
+  <b>bilingual EN/AR, RTL-ready</b> interfaces most devs avoid.</p>
+  <p>I've shipped institutional web platforms, complete CMS systems where the client edits
+  <b>every word</b> on the site, and Flutter apps that live on <b>both app stores</b>.
+  Real clients, real deadlines, and a stubborn habit of fixing things at the
+  <b>root cause</b> so they stay fixed.</p>
+  <div class="stats">
+    <div class="stat"><div class="n">12+</div><div class="l">repos</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">languages·rtl</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">platforms</div></div>
+  </div>
+</div>
+
+<div class="panel" id="pn-stack">
+  <div class="file">~/stack.apk — installed apps</div>
+  <h2>What's on <em>my phone.</em></h2>
+  <div class="apps-group">frontend</div>
+  <div class="apps">
+    <div class="app"><div class="ic" style="--c:#3178c6">TS</div><div class="nm">TypeScript</div></div>
+    <div class="app"><div class="ic" style="--c:#111">N</div><div class="nm">Next.js</div></div>
+    <div class="app"><div class="ic" style="--c:#149eca">⚛</div><div class="nm">React</div></div>
+    <div class="app"><div class="ic" style="--c:#0ea5e9">~</div><div class="nm">Tailwind</div></div>
+  </div>
+  <div class="apps-group">backend</div>
+  <div class="apps">
+    <div class="app"><div class="ic" style="--c:#3c873a">⬢</div><div class="nm">Node.js</div></div>
+    <div class="app"><div class="ic" style="--c:#444">ex</div><div class="nm">Express</div></div>
+    <div class="app"><div class="ic" style="--c:#5a67d8">▲</div><div class="nm">Prisma</div></div>
+    <div class="app"><div class="ic" style="--c:#336791">🐘</div><div class="nm">Postgres</div></div>
+    <div class="app"><div class="ic" style="--c:#00758f">My</div><div class="nm">MySQL</div></div>
+    <div class="app"><div class="ic" style="--c:#10aa50">🍃</div><div class="nm">MongoDB</div></div>
+    <div class="app"><div class="ic" style="--c:#e07856">{}</div><div class="nm">REST</div></div>
+  </div>
+  <div class="apps-group">mobile</div>
+  <div class="apps">
+    <div class="app"><div class="ic" style="--c:#02569b">F</div><div class="nm">Flutter</div></div>
+    <div class="app"><div class="ic" style="--c:#0175c2">D</div><div class="nm">Dart</div></div>
+    <div class="app"><div class="ic" style="--c:#0f9d58">▶</div><div class="nm">Play Store</div></div>
+    <div class="app"><div class="ic" style="--c:#222"></div><div class="nm">App Store</div></div>
+  </div>
+  <div class="apps-group">devops</div>
+  <div class="apps">
+    <div class="app"><div class="ic" style="--c:#f05033">git</div><div class="nm">Git</div></div>
+    <div class="app"><div class="ic" style="--c:#2088ff">CI</div><div class="nm">Actions</div></div>
+    <div class="app"><div class="ic" style="--c:#2496ed">🐳</div><div class="nm">Docker</div></div>
+    <div class="app"><div class="ic" style="--c:#ff6c37">PM</div><div class="nm">Postman</div></div>
+  </div>
+</div>
+
+<div class="panel" id="pn-projects">
+  <div class="file">~/projects — live from the GitHub API</div>
+  <h2>On my <em>screen</em> lately.</h2>
+  <div id="repoList"></div>
+</div>
+
+<div class="panel" id="pn-contact">
+  <div class="file">~/contact.sh</div>
+  <div class="avail"><i></i>available for projects</div>
+  <h2>Let's grab a<br/><em>coffee.</em> ☕</h2>
+  <p>Freelance project, full-time role, or a system that needs fixing at the root —
+  my inbox is open and I answer fast.</p>
+  <div class="c-row">
+    <a class="c-btn main" href="mailto:ahmedsyam100221@gmail.com">ahmedsyam100221@gmail.com</a>
+    <a class="c-btn alt" href="https://github.com/ahmedsyamdev" target="_blank" rel="noopener">github.com/ahmedsyamdev ↗</a>
+  </div>
+</div>
+
+<div id="loader"><div class="lamp">💡</div><p>turning the lights on…</p></div>
+
+<script type="module">
+import * as THREE from "three";
+
+/* ═════════ SETUP ═════════ */
+const W = () => innerWidth, H = () => innerHeight;
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(W(), H());
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.getElementById("scene").appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const NIGHT_BG = new THREE.Color(0x141022);
+const DARK_BG  = new THREE.Color(0x0a0814);
+scene.background = NIGHT_BG.clone();
+
+const camera = new THREE.PerspectiveCamera(38, W() / H(), 0.1, 200);
+
+/* ═════════ MATERIAL HELPERS ═════════ */
+const M = (color, opt = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0.05, ...opt });
+function box(w, h, d, mat, x = 0, y = 0, z = 0, cast = true, recv = true) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = recv;
+  return m;
+}
+
+/* ═════════ THE ROOM ═════════ */
+const room = new THREE.Group();
+scene.add(room);
+
+/* floor + walls */
+const floor = box(17, 0.4, 17, M(0x3a2e4e), 0, -0.2, 0, false, true);
+room.add(floor);
+const wallB = box(17, 10, 0.4, M(0x46395f), 0, 4.8, -8.5, false, true);
+const wallL = box(0.4, 10, 17, M(0x4e4169), -8.5, 4.8, 0, false, true);
+room.add(wallB, wallL);
+/* skirting */
+room.add(box(17, 0.5, 0.18, M(0x2c2240), 0, 0.25, -8.25, false));
+room.add(box(0.18, 0.5, 17, M(0x2c2240), -8.25, 0.25, 0, false));
+
+/* rug */
+const rug = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.4, 0.06, 40), M(0x7a4b62));
+rug.position.set(2.2, 0.03, 2.0); rug.receiveShadow = true;
+room.add(rug);
+const rug2 = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 0.07, 40), M(0x8d5a72));
+rug2.position.set(2.2, 0.035, 2.0); rug2.receiveShadow = true;
+room.add(rug2);
+
+/* ── desk ── */
+const desk = new THREE.Group();
+desk.position.set(-0.2, 0, -5.0);
+const deskTopMat = M(0x9a6b4f);
+desk.add(box(8.6, 0.32, 3.4, deskTopMat, 0, 3.0, 0));
+[[-4, -1.4], [4, -1.4], [-4, 1.4], [4, 1.4]].forEach(([x, z]) =>
+  desk.add(box(0.26, 3.0, 0.26, M(0x6e4a36), x, 1.5, z)));
+room.add(desk);
+
+/* ── monitor with live-typing code screen ── */
+const monitor = new THREE.Group();
+monitor.position.set(-0.6, 3.16, -5.6);
+monitor.add(box(1.2, 0.08, 0.75, M(0x222030), 0, 0.04, 0));          // base
+monitor.add(box(0.14, 0.75, 0.14, M(0x222030), 0, 0.42, 0));         // pole
+const bezel = box(3.3, 2.0, 0.14, M(0x16141f), 0, 1.78, 0);
+monitor.add(bezel);
+
+const codeCanvas = document.createElement("canvas");
+codeCanvas.width = 512; codeCanvas.height = 304;
+const cctx = codeCanvas.getContext("2d");
+const codeTex = new THREE.CanvasTexture(codeCanvas);
+codeTex.colorSpace = THREE.SRGBColorSpace;
+const screen = new THREE.Mesh(
+  new THREE.PlaneGeometry(3.06, 1.8),
+  new THREE.MeshBasicMaterial({ map: codeTex })
+);
+screen.position.set(0, 1.78, 0.08);
+monitor.add(screen);
+room.add(monitor);
+/* monitor glow light */
+const screenGlow = new THREE.PointLight(0x7fb4ff, 6, 7, 2);
+screenGlow.position.set(-0.6, 4.9, -4.6);
+room.add(screenGlow);
+
+/* code typing on screen */
+const CODE = [
+  ["const ", "#c792ea"], ["ahmed", "#82aaff"], [" = ", "#89ddff"], ["new ", "#c792ea"], ["FullStackDev", "#ffcb6b"], ["({", "#89ddff"], null,
+  ["  stack: [", "#cdd6f4"], ["'TS'", "#c3e88d"], [", ", "#cdd6f4"], ["'Next'", "#c3e88d"], [", ", "#cdd6f4"], ["'Node'", "#c3e88d"], ["],", "#cdd6f4"], null,
+  ["  mobile: ", "#cdd6f4"], ["'Flutter'", "#c3e88d"], [",", "#cdd6f4"], null,
+  ["  i18n: [", "#cdd6f4"], ["'en'", "#c3e88d"], [", ", "#cdd6f4"], ["'ar'", "#c3e88d"], ["],  ", "#cdd6f4"], ["// rtl ✓", "#546e7a"], null,
+  ["  motto: ", "#cdd6f4"], ["'fix the root cause'", "#c3e88d"], null,
+  ["});", "#89ddff"], null, null,
+  ["ahmed", "#82aaff"], [".", "#89ddff"], ["ship", "#ffcb6b"], ["(", "#89ddff"], ["'production'", "#c3e88d"], [");", "#89ddff"], [" // 🚀", "#546e7a"],
+];
+let codeStep = 0, codeTimer = 0;
+function drawCode() {
+  cctx.fillStyle = "#101019";
+  cctx.fillRect(0, 0, 512, 304);
+  cctx.fillStyle = "#1b1b29";
+  cctx.fillRect(0, 0, 512, 30);
+  ["#ff5f57", "#febc2e", "#28c840"].forEach((c, i) => {
+    cctx.beginPath(); cctx.arc(18 + i * 20, 15, 5.5, 0, 7); cctx.fillStyle = c; cctx.fill();
+  });
+  cctx.font = "11px monospace"; cctx.fillStyle = "#6f6f8a";
+  cctx.fillText("ahmed.ts — vs code", 86, 19);
+  cctx.font = "600 16px 'IBM Plex Mono', monospace";
+  let x = 22, y = 58, shown = 0;
+  for (const tok of CODE) {
+    if (shown++ >= codeStep) break;
+    if (tok === null) { x = 22; y += 26; continue; }
+    cctx.fillStyle = tok[1];
+    cctx.fillText(tok[0], x, y);
+    x += cctx.measureText(tok[0]).width;
+  }
+  if (Math.floor(performance.now() / 450) % 2 === 0) {
+    cctx.fillStyle = "#ffb35c"; cctx.fillRect(x + 2, y - 14, 9, 18);
+  }
+  codeTex.needsUpdate = true;
+}
+
+/* ── keyboard ── */
+const keyboard = new THREE.Group();
+keyboard.position.set(-0.4, 3.16, -4.0);
+keyboard.add(box(2.6, 0.12, 0.95, M(0x282438), 0, 0.06, 0));
+const keyMat = M(0x3c3654);
+for (let r = 0; r < 4; r++) for (let c = 0; c < 10; c++)
+  keyboard.add(box(0.18, 0.07, 0.16, keyMat, -1.08 + c * 0.24, 0.14, -0.3 + r * 0.21));
+room.add(keyboard);
+
+/* ── phone (→ stack) ── */
+const phone = new THREE.Group();
+phone.position.set(1.9, 3.16, -4.1);
+phone.rotation.y = -0.5;
+phone.add(box(0.62, 0.07, 1.18, M(0x111018), 0, 0.035, 0));
+const phoneScreen = new THREE.Mesh(
+  new THREE.PlaneGeometry(0.54, 1.06),
+  new THREE.MeshBasicMaterial({ color: 0x223a5e })
+);
+phoneScreen.rotation.x = -Math.PI / 2;
+phoneScreen.position.y = 0.075;
+phone.add(phoneScreen);
+/* tiny app dots */
+for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) {
+  const dot = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.09, 0.09),
+    new THREE.MeshBasicMaterial({ color: [0x3178c6, 0xffb35c, 0x80ed99, 0xf72585, 0x4cc9f0, 0xffcb6b][(r * 3 + c) % 6] })
+  );
+  dot.rotation.x = -Math.PI / 2;
+  dot.position.set(-0.15 + c * 0.15, 0.08, -0.32 + r * 0.18);
+  phone.add(dot);
+}
+room.add(phone);
+
+/* ── coffee (→ contact) ── */
+const coffee = new THREE.Group();
+coffee.position.set(-3.0, 3.16, -4.2);
+const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.24, 0.5, 24), M(0xe07856));
+mug.position.y = 0.25; mug.castShadow = true;
+coffee.add(mug);
+const handle = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.045, 10, 24), M(0xe07856));
+handle.position.set(0.32, 0.27, 0); handle.rotation.y = Math.PI / 2;
+coffee.add(handle);
+const brew = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.03, 24), M(0x3a2418));
+brew.position.y = 0.49;
+coffee.add(brew);
+room.add(coffee);
+/* steam puffs */
+const steam = [];
+for (let i = 0; i < 4; i++) {
+  const s = new THREE.Mesh(
+    new THREE.SphereGeometry(0.07, 10, 10),
+    new THREE.MeshBasicMaterial({ color: 0xf6ead8, transparent: true, opacity: 0.4 })
+  );
+  s.position.set(-3.0, 3.8, -4.2);
+  s.userData.t = i * 0.8;
+  room.add(s); steam.push(s);
+}
+
+/* ── notebook (→ about) ── */
+const notebook = new THREE.Group();
+notebook.position.set(-1.9, 3.16, -3.9);
+notebook.rotation.y = 0.35;
+notebook.add(box(0.95, 0.07, 1.25, M(0x9fc490), 0, 0.035, 0));
+notebook.add(box(0.85, 0.03, 1.15, M(0xf6ead8), 0.02, 0.085, 0));
+const nbLines = M(0xb9b29e);
+for (let i = 0; i < 5; i++) notebook.add(box(0.6, 0.005, 0.04, nbLines, 0.02, 0.105, -0.4 + i * 0.2, false, false));
+const pen = box(0.06, 0.06, 0.7, M(0x16141f), 0.55, 0.08, 0.1);
+pen.rotation.y = 0.5;
+notebook.add(pen);
+room.add(notebook);
+
+/* ── desk lamp (toggles the mood) ── */
+const lamp = new THREE.Group();
+lamp.position.set(3.5, 3.16, -5.6);
+lamp.add(new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.42, 0.1, 20), M(0x2c2240)));
+const arm1 = box(0.09, 1.5, 0.09, M(0x2c2240), 0, 0.8, 0);
+arm1.rotation.z = 0.3;
+lamp.add(arm1);
+const arm2 = box(0.09, 1.2, 0.09, M(0x2c2240), -0.46, 1.85, 0);
+arm2.rotation.z = -0.7;
+lamp.add(arm2);
+const shade = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.6, 20, 1, true),
+  new THREE.MeshStandardMaterial({ color: 0xffb35c, side: THREE.DoubleSide, emissive: 0xffb35c, emissiveIntensity: 0.7 }));
+shade.position.set(-0.95, 2.3, 0); shade.rotation.z = -0.9;
+lamp.add(shade);
+const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12),
+  new THREE.MeshBasicMaterial({ color: 0xfff3d6 }));
+bulb.position.set(-1.05, 2.2, 0);
+lamp.add(bulb);
+room.add(lamp);
+
+const lampLight = new THREE.PointLight(0xffc06e, 50, 16, 2);
+lampLight.position.set(2.4, 5.6, -5.2);
+lampLight.castShadow = true;
+lampLight.shadow.mapSize.set(1024, 1024);
+room.add(lampLight);
+
+/* ── wall frame: the avatar (alive) ── */
+const frame = new THREE.Group();
+frame.position.set(2.7, 6.6, -8.28);
+frame.add(box(2.0, 2.0, 0.14, M(0xd9a648, { metalness: 0.5, roughness: 0.4 }), 0, 0, 0));
+const avatarTex = new THREE.TextureLoader().load("assets/avatar.png");
+avatarTex.colorSpace = THREE.SRGBColorSpace;
+const avatarPic = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.7),
+  new THREE.MeshBasicMaterial({ map: avatarTex }));
+avatarPic.position.z = 0.08;
+frame.add(avatarPic);
+room.add(frame);
+/* tiny spotlight on the frame */
+const frameSpot = new THREE.SpotLight(0xffe6bb, 30, 9, 0.5, 0.6, 1.6);
+frameSpot.position.set(2.7, 9.2, -5.6);
+frameSpot.target = frame;
+room.add(frameSpot);
+
+/* ── window on left wall (night sky) ── */
+const win = new THREE.Group();
+win.position.set(-8.28, 6.2, 1.6);
+win.rotation.y = Math.PI / 2;
+win.add(box(3.4, 4.0, 0.16, M(0x2c2240), 0, 0, 0, false));
+const sky = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 3.6),
+  new THREE.MeshBasicMaterial({ color: 0x1c2a52 }));
+sky.position.z = 0.085;
+win.add(sky);
+win.add(box(0.1, 3.6, 0.06, M(0x2c2240), 0, 0, 0.12, false));
+win.add(box(3.0, 0.1, 0.06, M(0x2c2240), 0, 0, 0.12, false));
+const moon = new THREE.Mesh(new THREE.CircleGeometry(0.34, 24),
+  new THREE.MeshBasicMaterial({ color: 0xfff3d6 }));
+moon.position.set(0.8, 1.0, 0.09);
+win.add(moon);
+for (let i = 0; i < 14; i++) {
+  const st = new THREE.Mesh(new THREE.CircleGeometry(0.03, 6),
+    new THREE.MeshBasicMaterial({ color: 0xcfe0ff }));
+  st.position.set(-1.3 + Math.random() * 2.6, -1.5 + Math.random() * 3.2, 0.09);
+  win.add(st);
+}
+room.add(win);
+const moonLight = new THREE.PointLight(0x6f8fd8, 9, 12, 2);
+moonLight.position.set(-7.2, 6.2, 1.6);
+room.add(moonLight);
+
+/* ── shelf + books ── */
+const shelf = new THREE.Group();
+shelf.position.set(-4.6, 6.4, -8.1);
+shelf.add(box(3.4, 0.14, 0.9, M(0x9a6b4f), 0, 0, 0));
+const bookCols = [0xe07856, 0x9fc490, 0x6f8fd8, 0xffcb6b, 0xb388eb, 0xf6ead8];
+let bx = -1.4;
+for (let i = 0; i < 6; i++) {
+  const bh = 0.7 + Math.random() * 0.35, bw = 0.16 + Math.random() * 0.1;
+  const b = box(bw, bh, 0.55, M(bookCols[i]), bx, bh / 2 + 0.07, 0);
+  b.rotation.z = (Math.random() - 0.5) * 0.06;
+  shelf.add(b); bx += bw + 0.06;
+}
+const tinyPlantPot = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.12, 0.22, 12), M(0xe07856));
+tinyPlantPot.position.set(1.3, 0.18, 0);
+shelf.add(tinyPlantPot);
+const tinyLeaf = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), M(0x9fc490));
+tinyLeaf.position.set(1.3, 0.45, 0);
+shelf.add(tinyLeaf);
+room.add(shelf);
+
+/* ── floor plant ── */
+const plant = new THREE.Group();
+plant.position.set(5.6, 0, -5.6);
+plant.add(new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.42, 0.9, 16), M(0xc96f4a)));
+plant.children[0].position.y = 0.45;
+plant.children[0].castShadow = true;
+const foliage = new THREE.Group();
+for (let i = 0; i < 7; i++) {
+  const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.45 + Math.random() * 0.3, 9, 9), M(0x7fa86f));
+  leaf.position.set((Math.random() - .5) * 0.9, 1.3 + Math.random() * 1.0, (Math.random() - .5) * 0.9);
+  leaf.castShadow = true;
+  foliage.add(leaf);
+}
+plant.add(foliage);
+room.add(plant);
+
+/* ── poster on left wall ── */
+const posterCv = document.createElement("canvas");
+posterCv.width = 256; posterCv.height = 320;
+const pctx = posterCv.getContext("2d");
+pctx.fillStyle = "#1d172d"; pctx.fillRect(0, 0, 256, 320);
+pctx.strokeStyle = "#ffb35c"; pctx.lineWidth = 6; pctx.strokeRect(12, 12, 232, 296);
+pctx.fillStyle = "#ffb35c"; pctx.font = "800 84px 'Sora', sans-serif";
+pctx.fillText("</>", 56, 150);
+pctx.fillStyle = "#f6ead8"; pctx.font = "600 26px 'IBM Plex Mono', monospace";
+pctx.fillText("eat sleep", 52, 218);
+pctx.fillText("code ship", 52, 252);
+const posterTex = new THREE.CanvasTexture(posterCv);
+posterTex.colorSpace = THREE.SRGBColorSpace;
+const poster = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 2.5), new THREE.MeshBasicMaterial({ map: posterTex }));
+poster.position.set(-8.27, 5.6, 5.4);
+poster.rotation.y = Math.PI / 2;
+room.add(poster);
+
+/* ── the developer at his chair: pre-rendered art, keyed from black ── */
+const dev = new THREE.Group();
+dev.position.set(-0.55, 0, -2.3);
+dev.rotation.y = 0.62;                  // angled toward the default camera
+room.add(dev);
+let devPlane = null;
+{
+  /* soft blob shadow under the chair */
+  const blob = new THREE.Mesh(new THREE.CircleGeometry(1.75, 28),
+    new THREE.MeshBasicMaterial({ color: 0x06040c, transparent: true, opacity: 0.5 }));
+  blob.rotation.x = -Math.PI / 2;
+  blob.position.y = 0.02;
+  dev.add(blob);
+
+  const img = new Image();
+  img.src = "assets/dev.png";
+  img.onload = () => {
+    const c = document.createElement("canvas");
+    c.width = img.width; c.height = img.height;
+    const x = c.getContext("2d");
+    x.drawImage(img, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height);
+    const px = d.data;
+    /* key out the black background */
+    for (let i = 0; i < px.length; i += 4) {
+      const m = Math.max(px[i], px[i + 1], px[i + 2]);
+      px[i + 3] = m < 7 ? 0 : m < 32 ? ((m - 7) / 25) * 255 : 255;
+    }
+    /* find the subject's bounding box so he stands ON the floor */
+    let minX = c.width, maxX = 0, minY = c.height, maxY = 0;
+    for (let y = 0; y < c.height; y += 2) {
+      for (let xx = 0; xx < c.width; xx += 2) {
+        if (px[(y * c.width + xx) * 4 + 3] > 24) {
+          if (xx < minX) minX = xx; if (xx > maxX) maxX = xx;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+      }
+    }
+    x.putImageData(d, 0, 0);
+    const pad = 6;
+    minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad);
+    maxX = Math.min(c.width, maxX + pad); maxY = Math.min(c.height, maxY + pad);
+    const cw = maxX - minX, ch = maxY - minY;
+    const c2 = document.createElement("canvas");
+    c2.width = cw; c2.height = ch;
+    c2.getContext("2d").drawImage(c, minX, minY, cw, ch, 0, 0, cw, ch);
+
+    const tex = new THREE.CanvasTexture(c2);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    const Hp = 4.95, Wp = Hp * (cw / ch);   // chair-to-hair ≈ seated adult height in room units
+    devPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(Wp, Hp),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.02, side: THREE.DoubleSide })
+    );
+    devPlane.position.y = Hp / 2 - 0.02;
+    dev.add(devPlane);
+  };
+}
+
+
+/* ambient */
+const amb = new THREE.AmbientLight(0x9684c4, 0.5);
+scene.add(amb);
+const hemi = new THREE.HemisphereLight(0x5a4f8a, 0x2a2040, 0.5);
+scene.add(hemi);
+
+/* ═════════ CAMERA / FOCUS SYSTEM ═════════ */
+const DEFAULT_VIEW = { pos: new THREE.Vector3(13.2, 10.4, 13.6), look: new THREE.Vector3(-0.6, 2.8, -1.4) };
+const FOCUS = {
+  monitor:  { pos: new THREE.Vector3(-0.6, 5.6, -0.9),  look: new THREE.Vector3(-0.6, 4.9, -5.6), panel: "pn-projects", tip: "projects — open" },
+  phone:    { pos: new THREE.Vector3(1.9, 5.9, -1.7),   look: new THREE.Vector3(1.9, 3.2, -4.2),  panel: "pn-stack",    tip: "my stack — open" },
+  coffee:   { pos: new THREE.Vector3(-3.0, 5.4, -1.4),  look: new THREE.Vector3(-3.0, 3.4, -4.3), panel: "pn-contact",  tip: "contact — open" },
+  notebook: { pos: new THREE.Vector3(-1.9, 5.6, -1.2),  look: new THREE.Vector3(-1.9, 3.2, -4.0), panel: "pn-about",    tip: "about me — open" },
+  frame:    { pos: new THREE.Vector3(2.7, 6.6, -3.6),   look: new THREE.Vector3(2.7, 6.6, -8.3),  panel: "pn-about",    tip: "that's me!" },
+  dev:      { pos: new THREE.Vector3(3.0, 4.8, 2.6),    look: new THREE.Vector3(-0.6, 2.9, -2.3), panel: "pn-about",    tip: "me, coding" },
+};
+let view = { pos: DEFAULT_VIEW.pos.clone(), look: DEFAULT_VIEW.look.clone() };
+let tgt  = { pos: DEFAULT_VIEW.pos.clone(), look: DEFAULT_VIEW.look.clone() };
+let zoomed = null;
+
+const interactives = [
+  { obj: monitor,  key: "monitor",  label: "projects.exe" },
+  { obj: phone,    key: "phone",    label: "stack.apk" },
+  { obj: coffee,   key: "coffee",   label: "contact ☕" },
+  { obj: notebook, key: "notebook", label: "about.md" },
+  { obj: frame,    key: "frame",    label: "me.png" },
+  { obj: lamp,     key: "lamp",     label: "lights on/off" },
+  { obj: plant,    key: "plant",    label: "fern.js (decorative)" },
+  { obj: dev,      key: "dev",      label: "ahmed — busy coding" },
+];
+
+const backBtn = document.getElementById("back");
+const hint = document.getElementById("hint");
+const panels = [...document.querySelectorAll(".panel")];
+
+function openPanel(id) { panels.forEach(p => p.classList.toggle("open", p.id === id)); }
+function closePanels() { panels.forEach(p => p.classList.remove("open")); }
+
+function focusOn(key) {
+  const f = FOCUS[key];
+  if (!f) return;
+  zoomed = key;
+  tgt.pos.copy(f.pos); tgt.look.copy(f.look);
+  setTimeout(() => openPanel(f.panel), 360);
+  backBtn.classList.add("show");
+  hint.style.opacity = 0;
+}
+function goBack() {
+  zoomed = null;
+  tgt.pos.copy(DEFAULT_VIEW.pos); tgt.look.copy(DEFAULT_VIEW.look);
+  closePanels();
+  backBtn.classList.remove("show");
+}
+backBtn.addEventListener("click", goBack);
+addEventListener("keydown", e => { if (e.key === "Escape") goBack(); });
+
+/* lamp toggle */
+let lampOn = true;
+function toggleLamp() {
+  lampOn = !lampOn;
+  shade.material.emissiveIntensity = lampOn ? 0.7 : 0.04;
+  bulb.material.color.set(lampOn ? 0xfff3d6 : 0x3a3450);
+}
+
+/* ═════════ POINTER ═════════ */
+const ray = new THREE.Raycaster();
+const ptr = new THREE.Vector2(-10, -10);
+const tip = document.getElementById("tip");
+let hovered = null;
+const mouse = { x: 0, y: 0 };
+
+addEventListener("pointermove", e => {
+  ptr.x = (e.clientX / W()) * 2 - 1;
+  ptr.y = -(e.clientY / H()) * 2 + 1;
+  mouse.x = ptr.x; mouse.y = ptr.y;
+  tip.style.left = `${e.clientX + 2}px`;
+  tip.style.top = `${e.clientY - 44}px`;
+});
+addEventListener("click", () => {
+  if (!hovered) return;
+  if (hovered.key === "lamp") { toggleLamp(); return; }
+  if (hovered.key === "plant") return;
+  focusOn(hovered.key);
+});
+
+/* ═════════ LOOP ═════════ */
+const clock = new THREE.Clock();
+function loop() {
+  requestAnimationFrame(loop);
+  const t = clock.getElapsedTime();
+  const dt = Math.min(clock.getDelta(), 0.05) || 0.016;
+
+  /* typing code */
+  codeTimer += 1;
+  if (codeTimer % 7 === 0 && codeStep < CODE.length) codeStep++;
+  if (codeStep >= CODE.length && codeTimer % 460 === 0) codeStep = 0;
+  drawCode();
+
+  /* steam */
+  for (const s of steam) {
+    s.userData.t += dt;
+    const k = (s.userData.t % 3.2) / 3.2;
+    s.position.y = 3.75 + k * 1.1;
+    s.position.x = -3.0 + Math.sin(k * 7 + s.userData.t) * 0.1;
+    s.material.opacity = 0.42 * (1 - k);
+    s.scale.setScalar(0.7 + k * 1.6);
+  }
+
+  /* plant + tiny shelf leaf sway */
+  foliage.rotation.z = Math.sin(t * 0.8) * 0.04;
+  foliage.rotation.x = Math.cos(t * 0.6) * 0.03;
+
+  /* the developer: breathing sway */
+  if (devPlane) {
+    devPlane.position.y = (devPlane.geometry.parameters.height / 2 - 0.02) + Math.sin(t * 1.5) * 0.03;
+    dev.rotation.y = 0.62 + Math.sin(t * 0.45) * 0.012;
+  }
+
+  /* avatar frame: gentle sway, eyes on the room */
+  frame.rotation.y = mouse.x * 0.06;
+  frame.rotation.x = -mouse.y * 0.03;
+  frame.position.y = 6.6 + Math.sin(t * 1.1) * 0.04;
+
+  /* lamp flicker breathing */
+  lampLight.intensity = lampOn ? 46 + Math.sin(t * 2.3) * 3 + Math.sin(t * 13.7) * 1.2 : 2;
+  screenGlow.intensity = 5 + Math.sin(t * 3.1) * 1.4;
+  scene.background.lerp(lampOn ? NIGHT_BG : DARK_BG, 0.04);
+  amb.intensity = THREE.MathUtils.lerp(amb.intensity, lampOn ? 0.5 : 0.22, 0.04);
+
+  /* hover raycast (only when not zoomed) */
+  if (!zoomed) {
+    ray.setFromCamera(ptr, camera);
+    const meshes = [];
+    interactives.forEach(it => it.obj.traverse(o => { if (o.isMesh) { o.userData.it = it; meshes.push(o); } }));
+    const hits = ray.intersectObjects(meshes, false);
+    const hit = hits[0]?.object.userData.it ?? null;
+    if (hit !== hovered) {
+      hovered = hit;
+      if (hovered) {
+        tip.textContent = hovered.label;
+        tip.style.display = "block";
+        document.body.style.cursor = "pointer";
+      } else {
+        tip.style.display = "none";
+        document.body.style.cursor = "default";
+      }
+    }
+    if (hovered) {
+      const s = 1 + Math.sin(t * 6) * 0.018;
+      hovered.obj.scale.setScalar(THREE.MathUtils.lerp(hovered.obj.scale.x, s * 1.04, 0.15));
+    }
+    interactives.forEach(it => {
+      if (it !== hovered) it.obj.scale.setScalar(THREE.MathUtils.lerp(it.obj.scale.x, 1, 0.12));
+    });
+  } else {
+    tip.style.display = "none";
+  }
+
+  /* camera: ease toward target + idle parallax in default view */
+  const par = zoomed ? 0 : 1;
+  const px = mouse.x * 1.3 * par, py = mouse.y * -0.8 * par;
+  view.pos.lerp(new THREE.Vector3(tgt.pos.x + px, tgt.pos.y + py, tgt.pos.z + px * 0.4), 0.055);
+  view.look.lerp(tgt.look, 0.07);
+  camera.position.copy(view.pos);
+  camera.lookAt(view.look);
+
+  renderer.render(scene, camera);
+}
+loop();
+setTimeout(() => document.getElementById("loader").classList.add("done"), 900);
+
+addEventListener("resize", () => {
+  camera.aspect = W() / H();
+  camera.updateProjectionMatrix();
+  renderer.setSize(W(), H());
+});
+
+/* ═════════ LIVE REPOS ═════════ */
+const DOT = { TypeScript: "#3178c6", JavaScript: "#f1e05a", Dart: "#00b4ab",
+  HTML: "#e34c26", CSS: "#563d7c", Python: "#3572a5", default: "#a99bc4" };
+const list = document.getElementById("repoList");
+function row(r) {
+  const a = document.createElement("a");
+  a.className = "repo"; a.href = r.html_url; a.target = "_blank"; a.rel = "noopener";
+  a.innerHTML = `
+    <div class="rn">▸ ${r.name}</div>
+    <div class="rd">${r.description ?? "no description — the code speaks for itself."}</div>
+    <div class="rf">
+      <span><i style="background:${DOT[r.language] ?? DOT.default}"></i>${r.language ?? "—"}</span>
+      <span>★ ${r.stargazers_count}</span><span>⑂ ${r.forks_count ?? 0}</span>
+    </div>`;
+  list.appendChild(a);
+}
+const FALLBACK = [
+  { name: "naturalcalm-frontend", description: "E-commerce storefront — TypeScript + Next.js.", language: "TypeScript", stargazers_count: 0, forks_count: 0, html_url: "https://github.com/ahmedsyamdev" },
+  { name: "naturalcalm-backend", description: "REST API & admin backend — Node, Express, Prisma.", language: "TypeScript", stargazers_count: 0, forks_count: 0, html_url: "https://github.com/ahmedsyamdev" },
+];
+fetch("https://api.github.com/users/ahmedsyamdev/repos?per_page=100&sort=updated")
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(rs => {
+    const top = rs.filter(r => !r.fork)
+      .sort((a, b) => (b.stargazers_count - a.stargazers_count) || (new Date(b.pushed_at) - new Date(a.pushed_at)))
+      .slice(0, 8);
+    (top.length ? top : FALLBACK).forEach(row);
+  })
+  .catch(() => FALLBACK.forEach(row));
+</script>
+</body>
+</html>

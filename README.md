@@ -1,72 +1,71 @@
 <div align="center">
 
-<!-- Animated typing header -->
-<a href="https://github.com/ahmedsyamdev">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=26&duration=3000&pause=800&color=2EA9DF&center=true&vCenter=true&width=600&lines=Hi%2C+I'm+Ahmed+Syam+%F0%9F%91%8B;Full-Stack+Developer;TypeScript+%C2%B7+Next.js+%C2%B7+Node.js+%C2%B7+Flutter;I+ship+ideas+to+production+%F0%9F%9A%80" alt="Typing SVG" />
-</a>
+# Hey, I'm Ahmed Syam 👋
+
+**Full-Stack Developer** — TypeScript · Next.js · Node.js · Flutter
 
 <br/>
 
-<img src="https://komarev.com/ghpvc/?username=ahmedsyamdev&style=flat-square&color=2ea9df&label=Profile+Views" alt="profile views" />
+<!-- ══ THE ROOM ══ -->
+<a href="https://ahmedsyamdev.github.io/ahmedsyamdev/">
+  <img src="assets/preview.png" alt="Ahmed's interactive 3D dev room — click to step inside" width="850" />
+</a>
+
+### 🛋️ ↑ this is my room — **step inside, it's interactive**
+
+*Built with Three.js in a single file. Click the monitor for my projects, the phone for my stack,*
+*the coffee for contact… and yes, the lamp actually works.* 💡
+
+<br/>
+
+<img src="https://komarev.com/ghpvc/?username=ahmedsyamdev&style=flat-square&color=ffb35c&label=visitors" alt="visitors" />
 
 </div>
 
 ---
 
-## 🧑‍💻 About Me
+## ☕ About me
 
-- 🔭 Full-stack developer building **production web platforms, CMS systems, and mobile apps** end-to-end
-- 🏗️ I own the whole stack — from **database schema and REST APIs** to **pixel-perfect, bilingual (EN/AR), RTL-ready UIs**
-- 📱 I also ship **cross-platform mobile apps** with Flutter to both Google Play and the App Store
-- 🌍 Comfortable delivering for real clients: requirements → architecture → code → deployment → maintenance
-- ⚡ I care about **root-cause fixes**, clean data flow, and systems that don't break when you touch them
+```ts
+const ahmed = {
+  role: "Full-Stack Developer",
+  location: "Egypt 🇪🇬",
+  ownership: "database schema → REST APIs → admin dashboards → pixel-perfect frontends",
+  specialty: "bilingual EN/AR, RTL-ready interfaces most devs avoid",
+  shipped: ["institutional web platforms", "complete CMS systems", "Flutter apps on both stores"],
+  motto: "fix it at the root cause, so it stays fixed",
+  status: "open to work 🟢",
+};
+```
 
----
-
-## 🛠️ Tech Stack
-
-**Frontend**
-
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-
-**Backend**
-
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
-
-**Mobile**
-
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
-
-**Tools & DevOps**
-
-![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
-
----
-
-## 📊 GitHub Stats
+## 🛠️ The stack on my desk
 
 <div align="center">
 
-<img height="170" src="https://github-readme-stats.vercel.app/api?username=ahmedsyamdev&show_icons=true&theme=tokyonight&hide_border=true&bg_color=0d1117&count_private=true" alt="GitHub stats" />
-<img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=ahmedsyamdev&layout=compact&theme=tokyonight&hide_border=true&bg_color=0d1117&langs_count=8" alt="Top languages" />
+**Frontend**
+
+<img src="https://skillicons.dev/icons?i=ts,js,react,nextjs,tailwind,html,css" alt="frontend" />
+
+**Backend**
+
+<img src="https://skillicons.dev/icons?i=nodejs,express,prisma,postgres,mysql,mongodb" alt="backend" />
+
+**Mobile & DevOps**
+
+<img src="https://skillicons.dev/icons?i=flutter,dart,git,githubactions,docker,postman,vercel" alt="mobile and devops" />
+
+</div>
+
+## 📊 Stats
+
+<div align="center">
+
+<img height="165" src="https://github-readme-stats.vercel.app/api?username=ahmedsyamdev&show_icons=true&theme=tokyonight&hide_border=true&bg_color=141022&title_color=ffb35c&icon_color=ffb35c&count_private=true" alt="GitHub stats" />
+<img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=ahmedsyamdev&layout=compact&theme=tokyonight&hide_border=true&bg_color=141022&title_color=ffb35c&langs_count=8" alt="Top languages" />
 
 <br/><br/>
 
-<img src="https://streak-stats.demolab.com?user=ahmedsyamdev&theme=tokyonight&hide_border=true&background=0d1117" alt="GitHub streak" />
+<img src="https://streak-stats.demolab.com?user=ahmedsyamdev&theme=tokyonight&hide_border=true&background=141022&ring=ffb35c&fire=ffb35c&currStreakLabel=ffb35c" alt="GitHub streak" />
 
 </div>
 
@@ -80,16 +79,17 @@
 
 ---
 
-## 📫 Let's Connect
+## 📫 Let's grab a coffee
 
 <div align="center">
 
-[![Email](https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ahmedsyam100221@gmail.com)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/YOUR-LINKEDIN-HERE)
-[![Portfolio](https://img.shields.io/badge/Portfolio-2EA9DF?style=for-the-badge&logo=googlechrome&logoColor=white)](https://YOUR-PORTFOLIO-HERE.com)
+[![Email](https://img.shields.io/badge/ahmedsyam100221@gmail.com-141022?style=for-the-badge&logo=gmail&logoColor=ffb35c)](mailto:ahmedsyam100221@gmail.com)
+[![GitHub](https://img.shields.io/badge/github.com/ahmedsyamdev-141022?style=for-the-badge&logo=github&logoColor=ffb35c)](https://github.com/ahmedsyamdev)
 
 <br/>
 
-**💬 Open to freelance projects and full-time opportunities — let's build something great.**
+**💬 Freelance project, full-time role, or a system that needs fixing at the root — my inbox is open.**
+
+<sub>© 2026 Ahmed Syam · the room is one HTML file, Three.js, no frameworks — <a href="https://github.com/ahmedsyamdev/ahmedsyamdev/blob/main/index.html">view source</a></sub>
 
 </div>
