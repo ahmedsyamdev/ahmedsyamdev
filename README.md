@@ -1,62 +1,38 @@
 <div align="center">
 
-# Hey, I'm Ahmed Syam 👋
+<img src="assets/avatar.png" alt="Ahmed Syam" width="160" style="border-radius: 50%" />
 
-**Full-Stack Developer** — TypeScript · Next.js · Node.js · Flutter
+# Hey, I'm Ahmed 👋
 
-<br/>
-
-<!-- ══ THE ROOM ══ -->
-<a href="https://ahmedsyamdev.github.io/ahmedsyamdev/">
-  <img src="assets/preview.png" alt="Ahmed's interactive 3D dev room — click to step inside" width="850" />
+<a href="https://github.com/ahmedsyamdev">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=2800&pause=900&color=FFB35C&center=true&vCenter=true&width=520&lines=Full-Stack+Developer+%F0%9F%9A%80;TypeScript+%C2%B7+Next.js+%C2%B7+Node.js+%C2%B7+Flutter;EN+%2B+AR+%C2%B7+RTL-ready+%E2%9C%A8;I+fix+things+at+the+root+cause+%F0%9F%94%A7" alt="typing intro" />
 </a>
-
-### 🛋️ ↑ this is my room — **step inside, it's interactive**
-
-*Built with Three.js in a single file. Click the monitor for my projects, the phone for my stack,*
-*the coffee for contact… and yes, the lamp actually works.* 💡
-
-<br/>
 
 <img src="https://komarev.com/ghpvc/?username=ahmedsyamdev&style=flat-square&color=ffb35c&label=visitors" alt="visitors" />
 
 </div>
 
----
+<br/>
 
-## ☕ About me
+## 🙋‍♂️ whoami
 
-```ts
-const ahmed = {
-  role: "Full-Stack Developer",
-  location: "Egypt 🇪🇬",
-  ownership: "database schema → REST APIs → admin dashboards → pixel-perfect frontends",
-  specialty: "bilingual EN/AR, RTL-ready interfaces most devs avoid",
-  shipped: ["institutional web platforms", "complete CMS systems", "Flutter apps on both stores"],
-  motto: "fix it at the root cause, so it stays fixed",
-  status: "open to work 🟢",
-};
-```
+- 🧑‍💻 Full-stack developer from **Egypt** — I own everything from the **database schema** to the **last pixel**
+- 🌍 I build **bilingual EN/AR, RTL-ready** platforms — the interfaces most devs run away from
+- 📱 Shipped **Flutter apps to both stores**, complete **CMS systems**, and institutional web platforms
+- ☕ Powered by coffee and a stubborn habit of fixing bugs at the **root cause**, not the symptom
+- 🟢 **Open to work** — freelance or full-time
 
-## 🛠️ The stack on my desk
+## 🧰 Toolbox
 
 <div align="center">
 
-**Frontend**
-
-<img src="https://skillicons.dev/icons?i=ts,js,react,nextjs,tailwind,html,css" alt="frontend" />
-
-**Backend**
-
-<img src="https://skillicons.dev/icons?i=nodejs,express,prisma,postgres,mysql,mongodb" alt="backend" />
-
-**Mobile & DevOps**
-
-<img src="https://skillicons.dev/icons?i=flutter,dart,git,githubactions,docker,postman,vercel" alt="mobile and devops" />
+<img src="https://skillicons.dev/icons?i=ts,js,react,nextjs,tailwind,nodejs,express,prisma&perline=8" alt="stack row 1" />
+<br/>
+<img src="https://skillicons.dev/icons?i=postgres,mysql,mongodb,flutter,dart,docker,git,vercel&perline=8" alt="stack row 2" />
 
 </div>
 
-## 📊 Stats
+## 📊 Numbers
 
 <div align="center">
 
@@ -69,27 +45,19 @@ const ahmed = {
 
 </div>
 
----
-
 ## 🐍 Contribution Graph
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/ahmedsyamdev/ahmedsyamdev/output/github-contribution-grid-snake-dark.svg" alt="snake animation" />
 </div>
 
----
-
-## 📫 Let's grab a coffee
+## ☕ Let's talk
 
 <div align="center">
 
 [![Email](https://img.shields.io/badge/ahmedsyam100221@gmail.com-141022?style=for-the-badge&logo=gmail&logoColor=ffb35c)](mailto:ahmedsyam100221@gmail.com)
-[![GitHub](https://img.shields.io/badge/github.com/ahmedsyamdev-141022?style=for-the-badge&logo=github&logoColor=ffb35c)](https://github.com/ahmedsyamdev)
+[![GitHub](https://img.shields.io/badge/@ahmedsyamdev-141022?style=for-the-badge&logo=github&logoColor=ffb35c)](https://github.com/ahmedsyamdev)
 
-<br/>
-
-**💬 Freelance project, full-time role, or a system that needs fixing at the root — my inbox is open.**
-
-<sub>© 2026 Ahmed Syam · the room is one HTML file, Three.js, no frameworks — <a href="https://github.com/ahmedsyamdev/ahmedsyamdev/blob/main/index.html">view source</a></sub>
+**Got a project, a role, or a bug nobody can find? My inbox is open.** ✉️
 
 </div>
